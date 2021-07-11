@@ -26,6 +26,14 @@ function createWindow() {
 app.on('ready', () => {
     createWindow()
 
+    // app.dock.hide()
+
+    // console.log(path.join(__dirname, 'icon.png'))
+    // const tray = new Tray(path.join(__dirname, 'icon.png'))
+    // const contextMenu = Menu.buildFromTemplate([{ label: 'Item1', type: 'radio' }])
+    // tray.setToolTip('This is my application.')
+    // // tray.setContextMenu(contextMenu)
+
     ipcMain.handle('notify', (_, data: NotificationOptions) => {
         const notif = new Notification(data)
         notif.show()

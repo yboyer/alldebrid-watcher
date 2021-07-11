@@ -3,7 +3,7 @@ import { parse } from 'parse-torrent-title'
 import { config } from './config'
 
 export type Magnet = {
-    id: number
+    id: string
     filename?: string
     link?: string
     date?: number
@@ -24,7 +24,7 @@ class Alldebrid {
 
     async getMagnets() {
         console.log('[getMagnets]')
-        console.log(this.counter)
+        console.log(`#${this.counter}`)
         const res = await got
             .get(`https://api.alldebrid.com/v4/magnet/status`, {
                 searchParams: {
@@ -44,22 +44,25 @@ class Alldebrid {
 
         console.log({ magnets: res.data.magnets })
 
-        return res.data.magnets
+        const magnets = res.data.magnets
             .filter((m) => m.statusCode <= this.CODES.READY || !m.statusCode)
-            .slice(0, 8)
             .reduce<Magnet[]>((acc, m) => {
                 const date = new Date(m.uploadDate * 1000).getTime()
                 const ready = m.statusCode === this.CODES.READY
 
                 console.log(m)
 
+                const id = m.id.toString()
+
                 if (!m.statusCode) {
-                    acc.push({
-                        id: m.id,
-                    })
+                    if (!m.notified && !m.deleted) {
+                        acc.push({
+                            id,
+                        })
+                    }
                 } else if (Alldebrid.isMedia(m.filename)) {
                     acc.push({
-                        id: m.id,
+                        id,
                         filename: m.filename,
                         link: encodeURI(`${this.linkPrefix}${m.filename}`),
                         date,
@@ -69,7 +72,7 @@ class Alldebrid {
                     m.links?.forEach((link) => {
                         if (Alldebrid.isMedia(link.filename)) {
                             acc.push({
-                                id: m.id,
+                                id,
                                 filename: link.filename,
                                 link: encodeURI(
                                     `${this.linkPrefix}${m.filename}/${link.filename}`
@@ -89,6 +92,11 @@ class Alldebrid {
                     metadata: parse(file.filename || ''),
                 }
             })
+
+        return {
+            magnets,
+            firstFetch: this.counter === 1,
+        }
     }
 }
 

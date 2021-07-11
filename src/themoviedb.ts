@@ -33,9 +33,7 @@ class ThemovieDB {
     }
 
     async getMovieInfos(magnet): Promise<Movie> {
-        const {
-            results: [globalData],
-        } = await this.client
+        const { results } = await this.client
             .get(`search/movie`, {
                 searchParams: {
                     language: 'fr',
@@ -47,6 +45,12 @@ class ThemovieDB {
             })
             .json<any>()
         // const globalData = undefined
+
+        const globalData =
+            results.find(
+                (movie: any) =>
+                    new Date(movie.release_date).getFullYear() === magnet.metadata.year
+            ) || results[0]
 
         return {
             id: magnet.id,
@@ -93,7 +97,7 @@ class ThemovieDB {
 
     async getTVInfos(magnet) {
         const {
-            results: [globalInfos],
+            results: [globalData],
         } = await this.client
             .get(`search/tv`, {
                 searchParams: {
@@ -105,35 +109,48 @@ class ThemovieDB {
             })
             .json<any>()
 
-        console.log(globalInfos)
+        let episode: any
         try {
-            const episode = this.getEpisodeInfos({
-                tvId: globalInfos.id,
+            episode = await this.getEpisodeInfos({
+                tvId: globalData.id,
                 season: magnet.metadata.season,
                 episode: magnet.metadata.episode,
             })
-            console.log({ episode })
         } catch (e) {}
-        try {
-            const season = await this.getTVGlobalInfos({ tvId: globalInfos.id })
-            console.log(JSON.stringify(season, null, 2))
-        } catch (e) {}
-        console.log(magnet)
 
         return {
-            title: globalInfos.name,
-            overview: globalInfos.overview,
-            cover: `https://image.tmdb.org/t/p/w300${globalInfos.poster_path}`,
+            id: magnet.id,
+            tmdbId: globalData?.id,
+            releaseDate: globalData && new Date(globalData.release_date).getTime(),
+            title: globalData?.name,
+            originalTitle: globalData?.original_title,
+            originalLanguage: globalData?.original_language,
+            overview: globalData?.episode,
+            cover: globalData?.poster_path,
+            episode: {
+                number: episode?.episode_number,
+                season: episode?.season_number,
+                overview: episode?.overview,
+                releaseDate: episode && new Date(episode.air_date).getTime(),
+                title: episode?.name,
+                cover: episode?.still_path,
+            },
             filename: magnet.filename,
             link: magnet.link,
-            year: magnet.metadata.year,
+            resolution: magnet.metadata.resolution,
+            codec: magnet.metadata.codec,
+            language: magnet.metadata.language,
+            audio: magnet.metadata.audio,
+            source: magnet.metadata.source,
+            genres: globalData?.genre_ids.map((id: number) => GENRES[id]).sort(),
+            date: magnet.date,
         }
     }
 
     async getInfos(magnet) {
-        // if (magnet.metadata.season) {
-        //     return getTVInfos(magnet)
-        // }
+        if (magnet.metadata.season) {
+            return this.getTVInfos(magnet)
+        }
         return this.getMovieInfos(magnet)
     }
 }

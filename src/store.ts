@@ -3,7 +3,7 @@ import path from 'path'
 import os from 'os'
 import { promisify } from 'util'
 
-storage.setDataPath(path.join(os.homedir(), 'r2'))
+storage.setDataPath(path.join(os.homedir(), '.r2'))
 export const store = {
     has: promisify(storage.has),
     get: promisify(storage.get),
