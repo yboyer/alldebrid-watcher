@@ -22,7 +22,11 @@ class Manager {
 
     async getMagnets() {
         const { magnets, firstFetch } = await alldebrid.getMagnets()
+        let notFound = null
         if (firstFetch) {
+            if (this.cache.size) {
+                notFound = magnets.filter((m) => !this.cache.has(m.id))
+            }
             this.cache = new Map(
                 Object.entries(
                     magnets.reduce((acc, magnet) => {
@@ -35,9 +39,12 @@ class Manager {
                 )
             )
             console.log('cache', this.cache)
-            return
+            if (!notFound) {
+                return
+            }
+            console.log('notFound', notFound)
         }
-        for await (const magnet of magnets) {
+        for await (const magnet of notFound || magnets) {
             let refs = this.cache.get(magnet.id.toString())
             if (!refs) {
                 this.cache.set(magnet.id, [magnet])
