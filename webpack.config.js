@@ -10,7 +10,7 @@ module.exports = {
     // mode: 'development',
     mode: 'production',
     entry: {
-        preload: './src/preload.ts',
+        preload: './src/preload.tsx',
         main: './src/index.ts',
     },
     output: {

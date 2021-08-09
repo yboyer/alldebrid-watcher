@@ -1,10 +1,12 @@
 import got from 'got'
 import { parse } from 'parse-torrent-title'
 import { config } from './config'
+import slugify from 'slugify'
 
 export type Magnet = {
     id: string
     filename?: string
+    slug?: string
     link?: string
     date?: number
     ready?: boolean
@@ -20,6 +22,10 @@ class Alldebrid {
 
     static isMedia(filename: string): boolean {
         return /\.(mp4|mkv|avi)$/.test(filename)
+    }
+
+    private slugify(name: string): string {
+        return slugify(name, { remove: /[*+~.()'"!:@]/g })
     }
 
     async getMagnets() {
@@ -64,6 +70,7 @@ class Alldebrid {
                     acc.push({
                         id,
                         filename: m.filename,
+                        slug: this.slugify(m.filename),
                         link: encodeURI(`${this.linkPrefix}${m.filename}`),
                         date,
                         ready,
@@ -74,6 +81,7 @@ class Alldebrid {
                             acc.push({
                                 id,
                                 filename: link.filename,
+                                slug: this.slugify(link.filename),
                                 link: encodeURI(
                                     `${this.linkPrefix}${m.filename}/${link.filename}`
                                 ),

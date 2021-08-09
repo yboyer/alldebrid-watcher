@@ -12,6 +12,7 @@ export type Movie = {
     overview: string
     cover: string
     filename: string
+    slug: string
     link: string
     resolution: string
     codec: string
@@ -22,14 +23,43 @@ export type Movie = {
     date: number
 }
 
+export type Episode = {
+    id: number
+    tmdbId: number
+    releaseDate: number
+    title: string
+    originalTitle: string
+    originalLanguage: string
+    overview: string
+    cover: any
+    episode: {
+        number: number
+        season: number
+        overview: string
+        releaseDate: number
+        title: string
+        cover: string
+    }
+    filename: string
+    slug: string
+    link: string
+    resolution: string
+    codec: string
+    language: string
+    audio: string
+    source: string
+    genres: string
+    date: string
+}
+
 class ThemovieDB {
     private client = got.extend({
         prefixUrl: 'https://api.themoviedb.org/3/',
     })
     baseCoverUrl = 'https://image.tmdb.org/t/p/w300'
 
-    getIconUrl(cover: string): string {
-        return `https://image.tmdb.org/t/p/w400${cover}`
+    getIconUrl(cover: string, width = 400): string {
+        return `https://image.tmdb.org/t/p/w${width}${cover}`
     }
 
     async getMovieInfos(magnet): Promise<Movie> {
@@ -62,6 +92,7 @@ class ThemovieDB {
             overview: globalData?.overview,
             cover: globalData?.poster_path,
             filename: magnet.filename,
+            slug: magnet.slug,
             link: magnet.link,
             resolution: magnet.metadata.resolution,
             codec: magnet.metadata.codec,
@@ -95,7 +126,7 @@ class ThemovieDB {
             .json<any>()
     }
 
-    async getTVInfos(magnet) {
+    async getTVInfos(magnet): Promise<Episode> {
         const {
             results: [globalData],
         } = await this.client
@@ -136,6 +167,7 @@ class ThemovieDB {
                 cover: episode?.still_path,
             },
             filename: magnet.filename,
+            slug: magnet.slug,
             link: magnet.link,
             resolution: magnet.metadata.resolution,
             codec: magnet.metadata.codec,

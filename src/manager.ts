@@ -2,13 +2,10 @@ import { alldebrid } from './alldebrid'
 import { themoviedb } from './themoviedb'
 import { store } from './store'
 import type { NotificationOptions } from './types/notification'
-import { ipcRenderer } from 'electron'
 import { download } from './helpers/dowloader'
 import { url } from './iina'
-
-function twoDigits(x: number): string {
-    return `0${x}`.slice(-2)
-}
+import { notify } from './electron'
+import { twoDigits } from './utils'
 
 class Manager {
     private cache = new Map<string, any[]>()
@@ -40,7 +37,7 @@ class Manager {
             )
             console.log('cache', this.cache)
             if (!notFound) {
-                return
+                return []
             }
             console.log('notFound', notFound)
         }
@@ -57,15 +54,17 @@ class Manager {
             }
 
             for await (const ref of refs) {
+                const id = ref.slug
                 console.log('ref:', ref)
-                let data = await store.get(ref.filename.toString())
+                let data = await store.get(id)
+                console.log({ data })
 
                 if (!data.id) {
                     data = await themoviedb.getInfos(ref)
-                    await store.set(data.filename.toString(), data)
+                    await store.set(id, data)
                 }
                 data.ready = magnet.ready || ref.ready
-                await store.set(data.filename.toString(), data)
+                await store.set(id, data)
 
                 const notifOptions = {} as NotificationOptions
                 if (data.episode) {
@@ -105,15 +104,14 @@ class Manager {
                 }
 
                 if (data.ready || !data.notified) {
-                    await ipcRenderer.invoke('notify', notifOptions)
+                    notify(notifOptions)
                     data.notified = true
-                    await store.set(data.filename.toString(), data)
+                    await store.set(id, data)
                 }
             }
         }
 
-        const elements = await store.getAll()
-        return Object.values(elements).sort((a: any, b: any) => b.id - a.id)
+        return magnets
     }
 }
 
