@@ -1,2 +1,5 @@
 # R2
-![](.github/notif.png)
+
+![Nofification](.github/notif.png)
+
+![Screen](.github/screen.png)
