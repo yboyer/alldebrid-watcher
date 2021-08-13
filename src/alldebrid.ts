@@ -25,7 +25,7 @@ class Alldebrid {
     }
 
     private slugify(name: string): string {
-        return slugify(name, { remove: /[*+~.()'"!:@]/g })
+        return slugify(name, { remove: /[\*\[\]{}%$&#+~\.()'"!:@]/g })
     }
 
     async getMagnets() {
