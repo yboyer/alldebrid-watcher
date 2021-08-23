@@ -10,6 +10,7 @@ export type Magnet = {
     link?: string
     date?: number
     downloaded?: number
+    uploaded?: number
     size?: number
     ready?: boolean
 }
@@ -66,7 +67,8 @@ class Alldebrid {
                     if (!m.notified && !m.deleted) {
                         acc.push({
                             id,
-                            downloaded: m.downloaded || m.uploaded,
+                            downloaded: m.downloaded,
+                            uploaded: m.uploaded,
                         })
                     }
                 } else if (Alldebrid.isMedia(m.filename)) {

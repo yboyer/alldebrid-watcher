@@ -17,6 +17,18 @@ class Manager {
         }
     }
 
+    static getPercent(magnet: Magnet, totalSize: number): string {
+        if (magnet.downloaded !== undefined) {
+            return ((magnet.downloaded / 2 / totalSize) * 100).toFixed(1)
+        }
+
+        if (magnet.uploaded !== undefined) {
+            return ((totalSize / 2 + magnet.uploaded / 2 / totalSize) * 100).toFixed(1)
+        }
+
+        return ''
+    }
+
     async getMagnets() {
         const { magnets, firstFetch } = await alldebrid.getMagnets()
         let notFound: Magnet[] | null = null
@@ -68,8 +80,6 @@ class Manager {
                 data.ready = magnet.ready || ref.ready
                 await store.set(id, data)
 
-                const percentDownload = ((magnet.downloaded / ref.size) * 100).toFixed(1)
-
                 if (!data.ready && !magnet.downloaded) {
                     continue
                 }
@@ -89,6 +99,7 @@ class Manager {
                         notifOptions.title = 'New episode available'
                     } else {
                         notifOptions.title = 'Episode downloading...'
+                        const percentDownload = Manager.getPercent(magnet, ref.size)
                         if (percentDownload) {
                             notifOptions.title += ` (${percentDownload}%)`
                         }
@@ -113,6 +124,7 @@ class Manager {
                         notifOptions.title = 'New movie available'
                     } else {
                         notifOptions.title = 'Movie downloading...'
+                        const percentDownload = Manager.getPercent(magnet, ref.size)
                         if (percentDownload) {
                             notifOptions.title += ` (${percentDownload}%)`
                         }
