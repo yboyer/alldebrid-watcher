@@ -7,8 +7,7 @@ const CopyPlugin = require('copy-webpack-plugin')
 const dist = path.resolve(__dirname, 'dist')
 
 module.exports = {
-    // mode: 'development',
-    mode: 'production',
+    mode: process.env.WEBPACK_MODE || 'development',
     entry: {
         preload: './src/preload.tsx',
         main: './src/index.ts',
