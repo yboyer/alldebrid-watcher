@@ -1,5 +1,5 @@
-import { alldebrid } from './alldebrid'
-import { themoviedb } from './themoviedb'
+import { alldebrid, Magnet } from './alldebrid'
+import { Episode, Movie, themoviedb } from './themoviedb'
 import { store } from './store'
 import type { NotificationOptions } from './types/notification'
 import { download } from './helpers/dowloader'
@@ -19,7 +19,7 @@ class Manager {
 
     async getMagnets() {
         const { magnets, firstFetch } = await alldebrid.getMagnets()
-        let notFound = null
+        let notFound: Magnet[] | null = null
         if (firstFetch) {
             if (this.cache.size) {
                 notFound = magnets.filter((m) => !this.cache.has(m.id))
@@ -35,14 +35,14 @@ class Manager {
                     }, {})
                 )
             )
-            console.log('cache', this.cache)
+            // console.log('cache', this.cache)
             if (!notFound) {
                 return []
             }
             console.log('notFound', notFound)
         }
         for await (const magnet of notFound || magnets) {
-            let refs = this.cache.get(magnet.id.toString())
+            let refs = this.cache.get(magnet.id)
             if (!refs) {
                 this.cache.set(magnet.id, [magnet])
                 refs = [magnet]
@@ -53,11 +53,13 @@ class Manager {
                 }
             }
 
+            const elements = new Map<string, NotificationOptions>()
+
             for await (const ref of refs) {
                 const id = ref.slug
-                console.log('ref:', ref)
-                let data = await store.get(id)
-                console.log({ data })
+                // console.log('ref:', ref)
+                let data: Episode | Movie = await store.get(id)
+                // console.log({ data })
 
                 if (!data.id) {
                     data = await themoviedb.getInfos(ref)
@@ -66,8 +68,16 @@ class Manager {
                 data.ready = magnet.ready || ref.ready
                 await store.set(id, data)
 
-                const notifOptions = {} as NotificationOptions
-                if (data.episode) {
+                const percentDownload = ((magnet.downloaded / ref.size) * 100).toFixed(1)
+
+                if (!data.ready && !magnet.downloaded) {
+                    continue
+                }
+
+                const notifOptions = {
+                    id: data.id,
+                } as NotificationOptions
+                if (themoviedb.isEpisode(data)) {
                     notifOptions.icon = data.cover
                         ? await download({
                               url: themoviedb.getIconUrl(data.cover),
@@ -75,9 +85,16 @@ class Manager {
                           })
                         : void 0
 
-                    notifOptions.title = data.ready
-                        ? 'New episode available'
-                        : 'Episode downloading...'
+                    if (data.ready) {
+                        notifOptions.title = 'New episode available'
+                    } else {
+                        notifOptions.title = 'Episode downloading...'
+                        if (percentDownload) {
+                            notifOptions.title += ` (${percentDownload}%)`
+                        }
+                        notifOptions.silent = true
+                    }
+
                     notifOptions.body = `${data.title} [S${twoDigits(
                         data.episode.season
                     )}E${twoDigits(data.episode.number)}] - ${data.episode.title}`
@@ -92,23 +109,31 @@ class Manager {
                           })
                         : void 0
 
-                    notifOptions.title = data.ready
-                        ? 'New movie available'
-                        : 'Movie downloading...'
-                    notifOptions.body = `${data.title || data.filename} (${new Date(
-                        data.releaseDate || 'N/C'
-                    ).getUTCFullYear()})`
+                    if (data.ready) {
+                        notifOptions.title = 'New movie available'
+                    } else {
+                        notifOptions.title = 'Movie downloading...'
+                        if (percentDownload) {
+                            notifOptions.title += ` (${percentDownload}%)`
+                        }
+                        notifOptions.silent = true
+                    }
+                    notifOptions.body = `${data.title || data.filename}`
+                    if (data.releaseDate) {
+                        notifOptions.body += ` (${new Date(
+                            data.releaseDate
+                        ).getUTCFullYear()})`
+                    }
                     notifOptions.urlOpen = data.ready
                         ? url(data.link)
                         : 'https://alldebrid.com/magnets/'
                 }
-
-                if (data.ready || !data.notified) {
-                    notify(notifOptions)
-                    data.notified = true
-                    await store.set(id, data)
-                }
+                elements.set(notifOptions.id, notifOptions)
             }
+
+            elements.forEach((value) => {
+                notify(value)
+            })
         }
 
         return magnets

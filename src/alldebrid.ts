@@ -9,6 +9,8 @@ export type Magnet = {
     slug?: string
     link?: string
     date?: number
+    downloaded?: number
+    size?: number
     ready?: boolean
 }
 
@@ -42,7 +44,7 @@ class Alldebrid {
             })
             .json<{ data: { magnets: any[]; fullsync?: boolean; counter?: number } }>()
 
-        console.log(res)
+        console.log({ res })
 
         if (res.data.fullsync) {
             this.counter = res.data.counter
@@ -56,20 +58,22 @@ class Alldebrid {
                 const date = new Date(m.uploadDate * 1000).getTime()
                 const ready = m.statusCode === this.CODES.READY
 
-                console.log(m)
+                console.log({ m })
 
                 const id = m.id.toString()
 
-                if (!m.statusCode) {
+                if (m.statusCode === undefined) {
                     if (!m.notified && !m.deleted) {
                         acc.push({
                             id,
+                            downloaded: m.downloaded || m.uploaded,
                         })
                     }
                 } else if (Alldebrid.isMedia(m.filename)) {
                     acc.push({
                         id,
                         filename: m.filename,
+                        size: m.size,
                         slug: this.slugify(m.filename),
                         link: encodeURI(`${this.linkPrefix}${m.filename}`),
                         date,
@@ -81,6 +85,7 @@ class Alldebrid {
                             acc.push({
                                 id,
                                 filename: link.filename,
+                                size: m.size,
                                 slug: this.slugify(link.filename),
                                 link: encodeURI(
                                     `${this.linkPrefix}${m.filename}/${link.filename}`

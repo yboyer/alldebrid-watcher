@@ -3,7 +3,7 @@ import { config } from './config'
 import { GENRES } from './helpers/genres'
 
 export type Movie = {
-    id: number
+    id: string
     tmdbId: number
     releaseDate: number
     title: string
@@ -21,10 +21,11 @@ export type Movie = {
     source: string
     genres: string
     date: number
+    ready: boolean
 }
 
 export type Episode = {
-    id: number
+    id: string
     tmdbId: number
     releaseDate: number
     title: string
@@ -50,6 +51,7 @@ export type Episode = {
     source: string
     genres: string
     date: string
+    ready: boolean
 }
 
 class ThemovieDB {
@@ -101,6 +103,7 @@ class ThemovieDB {
             source: magnet.metadata.source,
             genres: globalData?.genre_ids.map((id) => GENRES[id]).sort(),
             date: magnet.date,
+            ready: magnet.ready,
         }
     }
 
@@ -176,6 +179,7 @@ class ThemovieDB {
             source: magnet.metadata.source,
             genres: globalData?.genre_ids.map((id: number) => GENRES[id]).sort(),
             date: magnet.date,
+            ready: magnet.ready,
         }
     }
 
@@ -184,6 +188,10 @@ class ThemovieDB {
             return this.getTVInfos(magnet)
         }
         return this.getMovieInfos(magnet)
+    }
+
+    isEpisode(el: Episode | Movie): el is Episode {
+        return (el as Episode).episode !== undefined
     }
 }
 
