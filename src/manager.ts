@@ -23,7 +23,7 @@ class Manager {
         }
 
         if (magnet.uploaded !== undefined) {
-            return ((totalSize / 2 + magnet.uploaded / 2 / totalSize) * 100).toFixed(1)
+            return (((totalSize / 2 + magnet.uploaded / 2) / totalSize) * 100).toFixed(1)
         }
 
         return ''
