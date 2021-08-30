@@ -77,7 +77,7 @@ class Alldebrid {
                         filename: m.filename,
                         size: m.size,
                         slug: this.slugify(m.filename),
-                        link: encodeURI(`${this.linkPrefix}${m.filename}`),
+                        link: encodeURIComponent(`${this.linkPrefix}${m.filename}`),
                         date,
                         ready,
                     })
@@ -89,7 +89,7 @@ class Alldebrid {
                                 filename: link.filename,
                                 size: m.size,
                                 slug: this.slugify(link.filename),
-                                link: encodeURI(
+                                link: encodeURIComponent(
                                     `${this.linkPrefix}${m.filename}/${link.filename}`
                                 ),
                                 date,
