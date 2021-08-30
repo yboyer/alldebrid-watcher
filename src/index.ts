@@ -34,7 +34,6 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-    let isFocus = false
     if (!app.isInApplicationsFolder()) {
         // app.moveToApplicationsFolder()
     }
@@ -44,10 +43,6 @@ app.on('ready', () => {
         const magnets = await manager.getMagnets()
         if (magnets.length) {
             mainWindow.webContents.send('magnet')
-
-            if (!isFocus) {
-                app.setBadgeCount(app.getBadgeCount() + magnets.length)
-            }
         }
     }
     setInterval(refreshUI, 5e3)
@@ -75,23 +70,16 @@ app.on('ready', () => {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
-
-        app.setBadgeCount(0)
     })
 
     app.on('browser-window-blur', function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
-        isFocus = false
-
-        app.setBadgeCount(0)
     })
 
     app.on('browser-window-focus', function () {
         console.log('focus')
-        isFocus = true
-        app.setBadgeCount(0)
     })
 })
 
