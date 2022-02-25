@@ -1,9 +1,10 @@
-import { useEffect, useState, HTMLAttributes } from 'react'
+import { useEffect, useState, HTMLAttributes, MouseEvent } from 'react'
 import { store } from '../store'
 import { themoviedb } from '../themoviedb'
 import { url } from '../iina'
 import { ipcRenderer } from 'electron'
 import { twoDigits } from '../utils'
+import Logo from './close_black_24dp.svg'
 
 const css = `
 .element {
@@ -19,12 +20,39 @@ const css = `
 .element:hover {
     background-color: #7955486b;
 }
+.remove {
+    opacity: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    transition-delay: 0s;
+    visibility: hidden;
+}
+.element:not(.removing):hover .remove {
+    opacity: 1;
+    // transition-delay: 150ms;
+    visibility: visible;
+}
+.remove:hover {
+    background-color: #FFF;
+}
+.element.removing {
+    opacity: 0.4;
+    cursor: default;
+}
+.element.removing:hover {
+    background-color: inherit;
+}
+.element.removing .remove {
+    display: none;
+}
 `
 
 const styles: Record<string, HTMLAttributes<HTMLSpanElement>['style']> = {
+    element: {
+        position: 'relative',
+    },
     container: {
         display: 'flex',
-        overflow: 'hidden',
+        // overflow: 'hidden',
         flexWrap: 'wrap',
         justifyContent: 'center',
     },
@@ -43,25 +71,41 @@ const styles: Record<string, HTMLAttributes<HTMLSpanElement>['style']> = {
         overflow: 'hidden',
         width: '100%',
     },
+    removeIcon: {
+        position: 'absolute',
+        cursor: 'default',
+        top: -6,
+        right: -4,
+        backdropFilter: 'blur(5px)',
+        display: 'flex',
+        borderRadius: '50%',
+        fill: '#5a5a5a',
+        width: 14,
+        height: 14,
+        padding: 4,
+        boxShadow: '0 1px 3px 0px #00000040',
+        transitionProperty: 'opacity',
+        transitionDuration: '0ms',
+        transitionTimingFunction: 'ease-out',
+    },
 }
 
 export function App() {
-    const [media, setMedia] = useState([])
+    const [medias, setMedias] = useState([])
+
+    async function get() {
+        const storage = await store.getAll()
+        console.log(storage)
+        setMedias(Object.values(storage).sort((a: any, b: any) => b.date - a.date))
+    }
 
     useEffect(() => {
-        async function get() {
-            const storage = await store.getAll()
-            console.log(storage)
-            setMedia(Object.values(storage).sort((a: any, b: any) => b.date - a.date))
-        }
-
         get()
     }, [])
 
     useEffect(() => {
         ipcRenderer.on('magnet', async () => {
-            const storage = await store.getAll()
-            setMedia(Object.values(storage))
+            get()
         })
 
         return () => {
@@ -70,15 +114,25 @@ export function App() {
     }, [])
 
     function handleClick(media: any) {
+        if (media.removing) return
         location.href = url(media.link)
-        console.log(media)
+    }
+
+    function handleRemove(e: MouseEvent, media: any) {
+        e.stopPropagation()
+        media.loading = true
+
+        setMedias((old) =>
+            old.map((el) => (el.slug === media.slug ? { ...el, removing: true } : el))
+        )
+        ipcRenderer.invoke('remove', media.slug)
     }
 
     return (
         <>
             <style>{css}</style>
             <div style={styles.container}>
-                {media.map((media) => {
+                {medias.map((media) => {
                     const title = media.title || media.filename
                     let subtitle = ''
                     if (media.episode) {
@@ -87,13 +141,22 @@ export function App() {
                         )}] - ${media.episode.title}`
                     }
 
+                    const className = `element${media.removing ? ' removing' : ''}`
+
                     return (
                         <div
                             key={media.slug}
                             style={styles.element}
-                            className="element"
+                            className={className}
                             onClick={() => handleClick(media)}
                         >
+                            <div
+                                style={styles.removeIcon}
+                                className="remove"
+                                onClick={(e) => handleRemove(e, media)}
+                            >
+                                <Logo />
+                            </div>
                             {media.cover ? (
                                 <img
                                     src={themoviedb.getIconUrl(media.cover, 342)}

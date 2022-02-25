@@ -1,4 +1,5 @@
 import { app, Notification } from 'electron'
+import open from 'open'
 
 import type { NotificationOptions } from './types/notification'
 

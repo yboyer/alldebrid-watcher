@@ -10,7 +10,6 @@ function createWindow() {
         height: 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            enableRemoteModule: true,
             nodeIntegration: true,
         },
         transparent: true,
@@ -45,6 +44,12 @@ app.on('ready', () => {
             mainWindow.webContents.send('magnet')
         }
     }
+
+    ipcMain.handle('remove', async (_, slug: string) => {
+        await manager.remove(slug)
+        mainWindow.webContents.send('magnet')
+    })
+
     setInterval(refreshUI, 5e3)
     refreshUI()
 

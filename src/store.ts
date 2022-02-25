@@ -6,7 +6,8 @@ import { promisify } from 'util'
 storage.setDataPath(path.join(os.homedir(), '.r2'))
 export const store = {
     has: promisify(storage.has),
-    get: promisify(storage.get),
+    get: promisify<string, any>(storage.get),
     set: promisify(storage.set),
-    getAll: promisify(storage.getAll),
+    remove: promisify(storage.remove),
+    getAll: promisify<any>(storage.getAll),
 }

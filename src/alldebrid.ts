@@ -23,6 +23,14 @@ class Alldebrid {
         READY: 4,
     } as const
 
+    private client = got.extend({
+        prefixUrl: 'https://api.alldebrid.com/v4/',
+        searchParams: {
+            agent: 'r2',
+            apikey: config.ALLDEBRID_API_KEY,
+        },
+    })
+
     static isMedia(filename: string): boolean {
         return /\.(mp4|mkv|avi)$/.test(filename)
     }
@@ -31,14 +39,21 @@ class Alldebrid {
         return slugify(name, { remove: /[\*\[\]{}%$&#+~\.()'"!:@]/g })
     }
 
+    async remove(id: string) {
+        console.log('[remove]', id)
+        await this.client.get('magnet/delete', {
+            searchParams: {
+                id,
+            },
+        })
+    }
+
     async getMagnets() {
         console.log('[getMagnets]')
         console.log(`#${this.counter}`)
-        const res = await got
-            .get(`https://api.alldebrid.com/v4/magnet/status`, {
+        const res = await this.client
+            .get('magnet/status', {
                 searchParams: {
-                    agent: 'r2',
-                    apikey: config.ALLDEBRID_API_KEY,
                     session: this.sessionId.toString(),
                     counter: (this.counter++).toString(),
                 },
@@ -47,16 +62,14 @@ class Alldebrid {
 
         console.log({ res })
 
-        if (res.data.fullsync) {
-            this.counter = res.data.counter
-        }
+        this.counter = res.data.counter
 
         console.log({ magnets: res.data.magnets })
 
         const magnets = res.data.magnets
             .filter((m) => m.statusCode <= this.CODES.READY || !m.statusCode)
             .reduce<Magnet[]>((acc, m) => {
-                const date = new Date(m.uploadDate * 1000).getTime()
+                const date = new Date(m.completionDate * 1000).getTime()
                 const ready = m.statusCode === this.CODES.READY
 
                 console.log({ m })

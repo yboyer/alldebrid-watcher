@@ -28,6 +28,10 @@ module.exports = {
                 test: /\.tsx?$/,
                 loader: 'ts-loader',
             },
+            {
+                test: /\.svg$/,
+                use: ['@svgr/webpack'],
+            },
         ],
     },
     plugins: [

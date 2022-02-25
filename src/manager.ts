@@ -8,7 +8,7 @@ import { notify } from './electron'
 import { twoDigits } from './utils'
 
 class Manager {
-    private cache = new Map<string, any[]>()
+    private cache = new Map<string, Magnet[]>()
 
     async update() {
         const all: any[] = await store.getAll()
@@ -149,6 +149,17 @@ class Manager {
         }
 
         return magnets
+    }
+
+    async remove(slug: string) {
+        const elem = await store.get(slug)
+        const files: Record<string, Episode | Movie> = await store.getAll()
+        const items = Object.values(files).filter((f) => f.id === elem.id)
+        await store.remove(slug)
+        if (items.length === 1) {
+            await alldebrid.remove(elem.id)
+            this.cache.delete(elem.id)
+        }
     }
 }
 
