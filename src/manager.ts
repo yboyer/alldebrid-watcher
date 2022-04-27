@@ -32,8 +32,10 @@ class Manager {
     async getMagnets() {
         const { magnets, firstFetch } = await alldebrid.getMagnets()
         let notFound: Magnet[] | null = null
+        const storedElements = await store.getAll()
+
         if (firstFetch) {
-            if (this.cache.size) {
+            if (this.cache.size || !Object.keys(storedElements).length) {
                 notFound = magnets.filter((m) => !this.cache.has(m.id))
             }
             this.cache = new Map(
