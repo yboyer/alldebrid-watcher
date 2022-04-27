@@ -34,10 +34,16 @@ class Manager {
         let notFound: Magnet[] | null = null
         const storedElements = await store.getAll()
 
+        if (!this.cache.size) {
+            this.cache = new Map(
+                Array.from(
+                    new Set(Object.values(storedElements).map((e: any) => e.id))
+                ).map((id) => [id, null])
+            )
+        }
+
         if (firstFetch) {
-            if (this.cache.size || !Object.keys(storedElements).length) {
-                notFound = magnets.filter((m) => !this.cache.has(m.id))
-            }
+            notFound = magnets.filter((m) => !this.cache.has(m.id))
             this.cache = new Map(
                 Object.entries(
                     magnets.reduce((acc, magnet) => {
