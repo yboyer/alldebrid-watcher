@@ -1177,20 +1177,20 @@
     global-agent "^3.0.0"
     global-tunnel-ng "^2.7.1"
 
-"@electron/get@^1.6.0":
-  version "1.12.4"
-  resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.12.4.tgz#a5971113fc1bf8fa12a8789dc20152a7359f06ab"
-  integrity sha512-6nr9DbJPUR9Xujw6zD3y+rS95TyItEVM0NVjt1EehY2vUWfIgPiIPVHxCvaTS0xr2B+DRxovYVKbuOWqC35kjg==
+"@electron/get@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@electron/get/-/get-2.0.0.tgz#d991e68dc089fc66b521ec3ca4021515482bef91"
+  integrity sha512-d0XfNGayKLrYRqddW4f2Zdjaj71LfvZlCnUN8ojyNMr7WD8v6B+fqdCV8Etnwn/vUfFWFwMk/HtLEFZy01h4tQ==
   dependencies:
     debug "^4.1.1"
     env-paths "^2.2.0"
     fs-extra "^8.1.0"
-    got "^9.6.0"
+    got "^11.8.5"
     progress "^2.0.3"
     semver "^6.2.0"
     sumchecker "^3.0.1"
   optionalDependencies:
-    global-agent "^2.0.2"
+    global-agent "^3.0.0"
     global-tunnel-ng "^2.7.1"
 
 "@electron/universal@^1.2.1":
@@ -2356,11 +2356,6 @@ core-js-compat@^3.22.1:
     browserslist "^4.21.2"
     semver "7.0.0"
 
-core-js@^3.6.5:
-  version "3.15.1"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.15.1.tgz#6c08ab88abdf56545045ccf5fd81f47f407e7f1a"
-  integrity sha512-h8VbZYnc9pDzueiS2610IULDkpFFPunHwIpl8yRwFahAEEdSpHlTy3h3z3rKq5h11CaUdBEeRViu9AYvbxiMeg==
-
 cosmiconfig@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/cosmiconfig/-/cosmiconfig-7.0.1.tgz#714d756522cace867867ccb4474c5d01bbae5d6d"
@@ -2625,12 +2620,12 @@ electron-osx-sign@^0.5.0:
     minimist "^1.2.0"
     plist "^3.0.1"
 
-electron-packager@^15.5.2:
-  version "15.5.2"
-  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-15.5.2.tgz#9864796b8af63aa87b43151d0b6990ba7093e6b8"
-  integrity sha512-8zUdkSONn0jomu/efqoxApGzgqIb56ooMs671HeB/BXTPnWcWvqpEY08g16PL6ok2ymA5zPj8vmUszLrq99F0Q==
+electron-packager@^16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-16.0.0.tgz#2eb7f14114e06b545207496ef66b10c24b7c8ba1"
+  integrity sha512-7Ey4UUaHg3FYhA7ktsAvCWP8srp9+iPljGdeJBsNaZBakU6HWhvRC+Pc7LWXGCgAVIN5BQsUwR3xrCbFno91VA==
   dependencies:
-    "@electron/get" "^1.6.0"
+    "@electron/get" "^2.0.0"
     "@electron/universal" "^1.2.1"
     asar "^3.1.0"
     cross-spawn-windows-exe "^1.2.0"
@@ -2648,7 +2643,7 @@ electron-packager@^15.5.2:
     rcedit "^3.0.1"
     resolve "^1.1.6"
     semver "^7.1.3"
-    yargs-parser "^20.2.9"
+    yargs-parser "^21.1.1"
 
 electron-to-chromium@^1.3.723:
   version "1.3.759"
@@ -3265,19 +3260,6 @@ glob@^7.1.3, glob@^7.1.6:
     minimatch "^3.0.4"
     once "^1.3.0"
     path-is-absolute "^1.0.0"
-
-global-agent@^2.0.2:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/global-agent/-/global-agent-2.2.0.tgz#566331b0646e6bf79429a16877685c4a1fbf76dc"
-  integrity sha512-+20KpaW6DDLqhG7JDiJpD1JvNvb8ts+TNl7BPOYcURqCrXqnN1Vf+XVOrkKJAFPqfX+oEhsdzOj1hLWkBTdNJg==
-  dependencies:
-    boolean "^3.0.1"
-    core-js "^3.6.5"
-    es6-error "^4.1.1"
-    matcher "^3.0.0"
-    roarr "^2.15.3"
-    semver "^7.3.2"
-    serialize-error "^7.0.1"
 
 global-agent@^3.0.0:
   version "3.0.0"
@@ -5206,10 +5188,10 @@ yaml@^1.10.0:
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
   integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
 
-yargs-parser@^20.2.9:
-  version "20.2.9"
-  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
-  integrity sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==
+yargs-parser@^21.1.1:
+  version "21.1.1"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-21.1.1.tgz#9096bceebf990d21bb31fa9516e0ede294a77d35"
+  integrity sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==
 
 yauzl@^2.10.0:
   version "2.10.0"
