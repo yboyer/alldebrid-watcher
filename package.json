@@ -20,7 +20,7 @@
     "build:release": "WEBPACK_MODE=production yarn build && electron-packager dist r2 --platform=darwin --arch=arm64 --out=releases --overwrite"
   },
   "devDependencies": {
-    "@svgr/webpack": "^6.3.1",
+    "@svgr/webpack": "^6.4.0",
     "@types/electron-json-storage": "^4.5.0",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
