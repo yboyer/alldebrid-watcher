@@ -51,6 +51,7 @@ export function SearchBar({ onValue }) {
                     ...(focus ? styles.searchBarFocus : {}),
                 }}
                 className="searchBar"
+                autoFocus
                 type="search"
                 placeholder="Search..."
                 onFocus={() => setFocus(true)}
