@@ -1,4 +1,11 @@
-import { useEffect, useState, HTMLAttributes, MouseEvent, useMemo } from 'react'
+import {
+    useEffect,
+    useState,
+    HTMLAttributes,
+    MouseEvent,
+    useMemo,
+    useCallback,
+} from 'react'
 import { store } from '../store'
 import { themoviedb } from '../themoviedb'
 import { url } from '../iina'
@@ -6,6 +13,7 @@ import { ipcRenderer } from 'electron'
 import { twoDigits } from '../utils'
 import Logo from './close_black_24dp.svg'
 import { useIsDarkTheme } from './useIsDarkTheme'
+import { SearchBar } from './SearchBar'
 
 const css = `
 .element {
@@ -99,25 +107,6 @@ const useStyles: (
         transitionDuration: '0ms',
         transitionTimingFunction: 'ease-out',
     },
-    searchContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '13px 77px',
-    },
-    searchBar: {
-        width: '100%',
-        backgroundColor: 'transparent',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderColor: isDark ? 'rgb(255 255 255 / 25%)' : 'rgb(0 0 0 / 25%)',
-        color: isDark ? '#fff' : '#000',
-        padding: 7,
-        textAlign: 'center',
-        borderRadius: 5,
-        outline: 'none',
-        maxWidth: 500,
-    },
 })
 
 function sanitize(str: string) {
@@ -128,14 +117,12 @@ function sanitize(str: string) {
 }
 
 export function App() {
+    const isDarkTheme = useIsDarkTheme()
+    const styles = useMemo(() => useStyles(isDarkTheme), [isDarkTheme])
     const [medias, setMedias] = useState([])
     const [search, setSearch] = useState('')
 
-    const isDarkTheme = useIsDarkTheme()
-
-    const styles = useStyles(isDarkTheme)
-
-    async function get() {
+    const get = useCallback(async function get() {
         const storage = await store.getAll()
         setMedias(
             Object.values(storage)
@@ -154,7 +141,7 @@ export function App() {
                     }
                 })
         )
-    }
+    }, [])
 
     const filteredMedias = useMemo(() => {
         if (search) {
@@ -184,12 +171,12 @@ export function App() {
         }
     }, [])
 
-    function handleClick(media: any) {
+    const handleClick = useCallback(function (media: any) {
         if (media.removing) return
         location.href = url(media.link)
-    }
+    }, [])
 
-    function handleRemove(e: MouseEvent, media: any) {
+    const handleRemove = useCallback(function (e: MouseEvent, media: any) {
         e.stopPropagation()
         media.loading = true
 
@@ -197,19 +184,12 @@ export function App() {
             old.map((el) => (el.slug === media.slug ? { ...el, removing: true } : el))
         )
         ipcRenderer.invoke('remove', media.slug)
-    }
+    }, [])
 
     return (
         <div style={styles.mainContainer}>
             <style>{css}</style>
-            <div style={styles.searchContainer}>
-                <input
-                    style={styles.searchBar}
-                    type="search"
-                    placeholder="Search..."
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-            </div>
+            <SearchBar onValue={setSearch} />
             <div style={styles.container}>
                 {filteredMedias.map((media) => {
                     const className = `element${media.removing ? ' removing' : ''}`
