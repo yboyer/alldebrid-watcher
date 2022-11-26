@@ -78,77 +78,81 @@ class Manager {
             for await (const ref of refs) {
                 const id = ref.slug
                 // console.log('ref:', ref)
-                let data: Episode | Movie = await store.get(id)
-                // console.log({ data })
+                try {
+                    let data: Episode | Movie = await store.get(id)
+                    // console.log({ data })
 
-                if (!data.id) {
-                    data = await themoviedb.getInfos(ref)
+                    if (!data.id) {
+                        data = await themoviedb.getInfos(ref)
+                        await store.set(id, data)
+                    }
+                    data.ready = magnet.ready || ref.ready
                     await store.set(id, data)
-                }
-                data.ready = magnet.ready || ref.ready
-                await store.set(id, data)
 
-                if (!data.ready && !magnet.downloaded) {
-                    continue
-                }
+                    if (!data.ready && !magnet.downloaded) {
+                        continue
+                    }
 
-                const notifOptions = {
-                    id: data.id,
-                } as NotificationOptions
-                if (themoviedb.isEpisode(data)) {
-                    notifOptions.icon = data.cover
-                        ? await download({
-                              url: themoviedb.getIconUrl(data.cover),
-                              name: data.cover,
-                          })
-                        : void 0
+                    const notifOptions = {
+                        id: data.id,
+                    } as NotificationOptions
+                    if (themoviedb.isEpisode(data)) {
+                        notifOptions.icon = data.cover
+                            ? await download({
+                                  url: themoviedb.getIconUrl(data.cover),
+                                  name: data.cover,
+                              })
+                            : void 0
 
-                    if (data.ready) {
-                        notifOptions.title = 'New episode available'
-                    } else {
-                        notifOptions.title = 'Episode downloading...'
-                        const percentDownload = Manager.getPercent(magnet, ref.size)
-                        if (percentDownload) {
-                            notifOptions.title += ` (${percentDownload}%)`
+                        if (data.ready) {
+                            notifOptions.title = 'New episode available'
+                        } else {
+                            notifOptions.title = 'Episode downloading...'
+                            const percentDownload = Manager.getPercent(magnet, ref.size)
+                            if (percentDownload) {
+                                notifOptions.title += ` (${percentDownload}%)`
+                            }
+                            notifOptions.silent = true
                         }
-                        notifOptions.silent = true
-                    }
 
-                    notifOptions.body = `${data.title} [S${twoDigits(
-                        data.episode.season
-                    )}E${twoDigits(data.episode.number)}] - ${data.episode.title}`
-                    notifOptions.urlOpen = data.ready
-                        ? url(data.link)
-                        : 'https://alldebrid.com/magnets/'
-                } else {
-                    notifOptions.icon = data.cover
-                        ? await download({
-                              url: themoviedb.getIconUrl(data.cover),
-                              name: data.cover,
-                          })
-                        : void 0
-
-                    if (data.ready) {
-                        notifOptions.title = 'New movie available'
+                        notifOptions.body = `${data.title} [S${twoDigits(
+                            data.episode.season
+                        )}E${twoDigits(data.episode.number)}] - ${data.episode.title}`
+                        notifOptions.urlOpen = data.ready
+                            ? url(data.link)
+                            : 'https://alldebrid.com/magnets/'
                     } else {
-                        notifOptions.title = 'Movie downloading...'
-                        const percentDownload = Manager.getPercent(magnet, ref.size)
-                        if (percentDownload) {
-                            notifOptions.title += ` (${percentDownload}%)`
+                        notifOptions.icon = data.cover
+                            ? await download({
+                                  url: themoviedb.getIconUrl(data.cover),
+                                  name: data.cover,
+                              })
+                            : void 0
+
+                        if (data.ready) {
+                            notifOptions.title = 'New movie available'
+                        } else {
+                            notifOptions.title = 'Movie downloading...'
+                            const percentDownload = Manager.getPercent(magnet, ref.size)
+                            if (percentDownload) {
+                                notifOptions.title += ` (${percentDownload}%)`
+                            }
+                            notifOptions.silent = true
                         }
-                        notifOptions.silent = true
+                        notifOptions.body = `${data.title || data.filename}`
+                        if (data.releaseDate) {
+                            notifOptions.body += ` (${new Date(
+                                data.releaseDate
+                            ).getUTCFullYear()})`
+                        }
+                        notifOptions.urlOpen = data.ready
+                            ? url(data.link)
+                            : 'https://alldebrid.com/magnets/'
                     }
-                    notifOptions.body = `${data.title || data.filename}`
-                    if (data.releaseDate) {
-                        notifOptions.body += ` (${new Date(
-                            data.releaseDate
-                        ).getUTCFullYear()})`
-                    }
-                    notifOptions.urlOpen = data.ready
-                        ? url(data.link)
-                        : 'https://alldebrid.com/magnets/'
+                    elements.set(notifOptions.id, notifOptions)
+                } catch (err) {
+                    console.error(err)
                 }
-                elements.set(notifOptions.id, notifOptions)
             }
 
             elements.forEach((value) => {

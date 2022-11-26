@@ -12,6 +12,7 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: true,
         },
+        trafficLightPosition: { x: 10, y: 20 },
         transparent: true,
         width: 800,
         titleBarStyle: 'hiddenInset',
