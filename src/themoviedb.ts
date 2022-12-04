@@ -1,6 +1,6 @@
 import got from 'got'
-import { config } from './config'
 import { GENRES } from './helpers/genres'
+import { encrypto } from './helpers/crypto'
 
 export type Movie = {
     id: string
@@ -57,8 +57,14 @@ export type Episode = {
 class ThemovieDB {
     private client = got.extend({
         prefixUrl: 'https://api.themoviedb.org/3/',
+        searchParams: {
+            api_key: encrypto.decrypt(
+                '5210bb395ad80d109dcbca80320b846868df854f2c3bf5e363562393b57b155c',
+                this.constructor.name
+            ),
+            language: 'fr',
+        },
     })
-    baseCoverUrl = 'https://image.tmdb.org/t/p/w300'
 
     getIconUrl(cover: string, width = 400): string {
         return `https://image.tmdb.org/t/p/w${width}${cover}`
@@ -68,10 +74,8 @@ class ThemovieDB {
         const { results } = await this.client
             .get(`search/movie`, {
                 searchParams: {
-                    language: 'fr',
                     page: '1',
                     query: magnet.metadata.title,
-                    api_key: config.TMDB_API_KEY,
                     year: magnet.metadata.year,
                 },
             })
@@ -108,24 +112,12 @@ class ThemovieDB {
     }
 
     async getTVGlobalInfos({ tvId }) {
-        return await this.client
-            .get(`tv/${tvId}`, {
-                searchParams: {
-                    language: 'fr',
-                    api_key: config.TMDB_API_KEY,
-                },
-            })
-            .json<any>()
+        return await this.client.get(`tv/${tvId}`).json<any>()
     }
 
     async getEpisodeInfos({ tvId, season, episode }) {
         return this.client
-            .get(`tv/${tvId}/season/${season}/episode/${episode}`, {
-                searchParams: {
-                    language: 'fr',
-                    api_key: config.TMDB_API_KEY,
-                },
-            })
+            .get(`tv/${tvId}/season/${season}/episode/${episode}`, {})
             .json<any>()
     }
 
@@ -135,10 +127,8 @@ class ThemovieDB {
         } = await this.client
             .get(`search/tv`, {
                 searchParams: {
-                    language: 'fr',
                     page: '1',
                     query: magnet.metadata.title,
-                    api_key: config.TMDB_API_KEY,
                 },
             })
             .json<any>()
