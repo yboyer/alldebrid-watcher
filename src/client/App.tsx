@@ -62,6 +62,7 @@ const useStyles: (
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#000',
     },
     element: {
         position: 'relative',
@@ -88,7 +89,6 @@ const useStyles: (
         textOverflow: 'ellipsis',
         overflow: 'hidden',
         width: '100%',
-        color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#000',
     },
     removeIcon: {
         position: 'absolute',
@@ -109,11 +109,13 @@ const useStyles: (
     },
 })
 
-function sanitize(str: string) {
-    return str
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/\p{Diacritic}/gu, '')
+function sanitize(str?: string): string {
+    return (
+        str
+            ?.toLowerCase()
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '') || ''
+    )
 }
 
 export function App() {
@@ -147,7 +149,7 @@ export function App() {
         if (search) {
             return medias.filter((m) => {
                 const words = search.split(' ')
-                const compare = ['title', 'subtitle']
+                const compare = ['title', 'subtitle', 'originalTitle']
 
                 return words.every((w) =>
                     compare.some((c) => sanitize(m[c]).includes(sanitize(w)))

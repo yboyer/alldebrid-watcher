@@ -1,17 +1,20 @@
 import { StrictMode } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { App } from './client/App'
+import { TokenProvider } from './client/TokenProvider'
 
 //
 
 async function init(rootEl) {
     if (!rootEl) return
 
-    ReactDOM.render(
+    const root = createRoot(rootEl)
+    root.render(
         <StrictMode>
-            <App />
-        </StrictMode>,
-        rootEl
+            <TokenProvider>
+                <App />
+            </TokenProvider>
+        </StrictMode>
     )
 }
 

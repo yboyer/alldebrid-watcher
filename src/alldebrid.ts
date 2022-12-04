@@ -18,18 +18,109 @@ export type Magnet = {
 class Alldebrid {
     private counter = 0
     private sessionId = Math.round(Math.random() * 30000)
-    private linkPrefix = `https://myfiles.alldebrid.com/${config.ALLDEBRID_API_KEY}/magnets/`
+    private get linkPrefix() {
+        return `https://myfiles.alldebrid.com/${config.ALLDEBRID_API_KEY}/magnets/`
+    }
     private CODES = {
         READY: 4,
     } as const
+    private pinCheck:
+        | {
+              check: string
+              userUrl: string
+              pin: string
+              expire: number
+          }
+        | undefined
 
     private client = got.extend({
         prefixUrl: 'https://api.alldebrid.com/v4/',
         searchParams: {
             agent: 'r2',
-            apikey: config.ALLDEBRID_API_KEY,
+        },
+        hooks: {
+            init: [
+                function (opts) {
+                    if (config.ALLDEBRID_API_KEY) {
+                        ;(opts.searchParams as any).apikey = config.ALLDEBRID_API_KEY
+                    }
+                },
+            ],
         },
     })
+
+    needPin() {
+        return !Boolean(config.ALLDEBRID_API_KEY)
+    }
+
+    async checkPin() {
+        if (!this.pinCheck) {
+            return !this.needPin()
+        }
+
+        const res = await this.client
+            .get('pin/check', {
+                searchParams: {
+                    pin: this.pinCheck.pin,
+                    check: this.pinCheck.check,
+                },
+            })
+            .json<{
+                data:
+                    | {
+                          activated: false
+                          expires_in: number
+                      }
+                    | {
+                          apikey: string
+                          activated: true
+                          expires_in: number
+                      }
+            }>()
+
+        console.log('Token expires in:', res.data?.expires_in)
+        if (res.data.expires_in < 10) {
+            this.pinCheck = null
+        }
+
+        if (res.data.activated) {
+            console.log('activated')
+            config.ALLDEBRID_API_KEY = res.data.apikey
+            this.pinCheck = null
+            return true
+        }
+
+        return false
+    }
+
+    async getPinUrl() {
+        if (config.ALLDEBRID_API_KEY) {
+            return
+        }
+        if (this.pinCheck) {
+            if (this.pinCheck.expire > 200) {
+                return this.pinCheck.userUrl
+            }
+        }
+        const res = await this.client.get('pin/get').json<{
+            data: {
+                pin: string
+                check: string
+                expires_in: number
+                user_url: string
+                base_url: string
+                check_url: string
+            }
+            error?: { code: string; message: string }
+        }>()
+        this.pinCheck = {
+            pin: res.data.pin,
+            check: res.data.check,
+            userUrl: res.data.user_url,
+            expire: res.data.expires_in,
+        }
+        return this.pinCheck.userUrl
+    }
 
     static isMedia(filename: string): boolean {
         return /\.(mp4|mkv|avi)$/.test(filename)
@@ -58,9 +149,23 @@ class Alldebrid {
                     counter: (this.counter++).toString(),
                 },
             })
-            .json<{ data: { magnets: any[]; fullsync?: boolean; counter?: number } }>()
+            .json<{
+                data: {
+                    magnets: any[]
+                    fullsync?: boolean
+                    counter?: number
+                }
+                error?: { code: string; message: string }
+            }>()
 
         console.log({ res })
+
+        if (res.error) {
+            if (res.error.code === 'AUTH_BAD_APIKEY') {
+                config.ALLDEBRID_API_KEY = ''
+            }
+            throw new Error(res.error.message)
+        }
 
         this.counter = res.data.counter
 
