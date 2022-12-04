@@ -59,8 +59,8 @@ class ThemovieDB {
         prefixUrl: 'https://api.themoviedb.org/3/',
         searchParams: {
             api_key: encrypto.decrypt(
-                '5210bb395ad80d109dcbca80320b846868df854f2c3bf5e363562393b57b155c',
-                this.constructor.name
+                '3af97b8e5a8b819323c8037565666371d4b42ad495d13dc88ba478730b86027c',
+                '5710bb3f0c8e5f48999e9d8c610c823b308dde1e763bfbe031572bc6ba2b1454'
             ),
             language: 'fr',
         },

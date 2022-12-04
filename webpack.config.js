@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
-const webpack = require('webpack')
-const dotenv = require('dotenv').config()
 const CopyPlugin = require('copy-webpack-plugin')
 
 const dist = path.resolve(__dirname, 'dist')
@@ -35,12 +33,6 @@ module.exports = {
         ],
     },
     plugins: [
-        new webpack.DefinePlugin({
-            'process.env.ALLDEBRID_API_KEY': JSON.stringify(
-                dotenv.parsed.ALLDEBRID_API_KEY
-            ),
-            'process.env.TMDB_API_KEY': JSON.stringify(dotenv.parsed.TMDB_API_KEY),
-        }),
         new CopyPlugin({
             patterns: [
                 {
