@@ -35,6 +35,7 @@ export function TokenProvider({ children }) {
     const styles = useStyles(isDark)
 
     useEffect(() => {
+        ipcRenderer.invoke('checkPin')
         ipcRenderer.on('needToken', async (_, url) => {
             setNeedToken(Boolean(url))
             setTokenUrl(url)

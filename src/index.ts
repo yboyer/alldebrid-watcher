@@ -88,6 +88,10 @@ app.on('ready', () => {
         waitForPin(mainWindow)
     })
 
+    ipcMain.handle('checkPin', function () {
+        waitForPin(mainWindow)
+    })
+
     setInterval(() => refreshUI(mainWindow), 5e3)
     refreshUI(mainWindow)
 
