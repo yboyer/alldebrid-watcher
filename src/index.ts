@@ -77,7 +77,7 @@ app.on('ready', () => {
     if (!app.isInApplicationsFolder()) {
         // app.moveToApplicationsFolder()
     }
-    const mainWindow = createWindow()
+    let mainWindow = createWindow()
 
     ipcMain.handle('remove', async (_, slug: string) => {
         await manager.remove(slug)
@@ -116,13 +116,17 @@ app.on('ready', () => {
     app.on('activate', function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        if (BrowserWindow.getAllWindows().length === 0) {
+            mainWindow = createWindow()
+        }
     })
 
     app.on('browser-window-blur', function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+        if (BrowserWindow.getAllWindows().length === 0) {
+            mainWindow = createWindow()
+        }
     })
 
     app.on('browser-window-focus', function () {
