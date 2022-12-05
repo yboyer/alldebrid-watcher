@@ -158,7 +158,7 @@ class Alldebrid {
                 error?: { code: string; message: string }
             }>()
 
-        console.log({ res })
+        // console.log({ res })
 
         if (res.error) {
             if (res.error.code === 'AUTH_BAD_APIKEY') {
@@ -169,7 +169,7 @@ class Alldebrid {
 
         this.counter = res.data.counter
 
-        console.log({ magnets: res.data.magnets })
+        console.log({ magnets: res.data.magnets.length })
 
         const magnets = res.data.magnets
             .filter((m) => m.statusCode <= this.CODES.READY || !m.statusCode)
@@ -177,7 +177,7 @@ class Alldebrid {
                 const date = new Date(m.completionDate * 1000).getTime()
                 const ready = m.statusCode === this.CODES.READY
 
-                console.log({ m })
+                // console.log({ m })
 
                 const id = m.id.toString()
 

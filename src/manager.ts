@@ -6,13 +6,14 @@ import { download } from './helpers/dowloader'
 import { url } from './iina'
 import { notify } from './electron'
 import { twoDigits } from './utils'
+import { groupBy } from 'lodash'
 
 class Manager {
     private cache = new Map<string, Magnet[]>()
 
     async update() {
         const all: any[] = await store.getAll()
-        for await (const entry of Object.values(all)) {
+        for (const entry of Object.values(all)) {
             await store.set(entry.id.toString(), { ...entry, ready: true })
         }
     }
@@ -61,7 +62,8 @@ class Manager {
             }
             console.log('notFound', notFound)
         }
-        for await (const magnet of notFound || magnets) {
+        const elements: NotificationOptions[] = []
+        for (const magnet of notFound || magnets) {
             let refs = this.cache.get(magnet.id)
             if (!refs) {
                 this.cache.set(magnet.id, [magnet])
@@ -73,9 +75,7 @@ class Manager {
                 }
             }
 
-            const elements = new Map<string, NotificationOptions>()
-
-            for await (const ref of refs) {
+            for (const ref of refs) {
                 const id = ref.slug
                 // console.log('ref:', ref)
                 try {
@@ -93,10 +93,16 @@ class Manager {
                         continue
                     }
 
+                    const isEpisode = themoviedb.isEpisode(data)
                     const notifOptions = {
                         id: data.id,
+                        extra: {
+                            data,
+                            isEpisode,
+                        },
                     } as NotificationOptions
                     if (themoviedb.isEpisode(data)) {
+                        notifOptions.extra.isEpisode = true
                         notifOptions.icon = data.cover
                             ? await download({
                                   url: themoviedb.getIconUrl(data.cover),
@@ -149,16 +155,36 @@ class Manager {
                             ? url(data.link)
                             : 'https://alldebrid.com/magnets/'
                     }
-                    elements.set(notifOptions.id, notifOptions)
+                    elements.push(notifOptions)
                 } catch (err) {
                     console.error(err)
                 }
             }
-
-            elements.forEach((value) => {
-                notify(value)
-            })
         }
+
+        Object.values(groupBy(elements, 'id')).forEach((group) => {
+            const ref = group[0]
+            if (group.length < 2 || !ref?.extra?.isEpisode) {
+                notify(ref)
+                return
+            }
+
+            if (ref.extra.isEpisode) {
+                ref.title = 'New episodes available'
+                const episodesNumber = group
+                    .map((e) => twoDigits(e.extra.data.episode.number))
+                    .join(',')
+                ref.body = `${ref.extra.data.title} [S${twoDigits(
+                    ref.extra.data.episode.season
+                )}]\nEpisodes ${episodesNumber}`
+                ref.urlOpen = null
+
+                notify(ref)
+                return
+            }
+
+            notify(ref)
+        })
 
         return magnets
     }
