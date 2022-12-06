@@ -174,7 +174,7 @@ class Alldebrid {
         const magnets = res.data.magnets
             .filter((m) => m.statusCode <= this.CODES.READY || !m.statusCode)
             .reduce<Magnet[]>((acc, m) => {
-                const date = new Date(m.completionDate * 1000).getTime()
+                const date = new Date().getTime()
                 const ready = m.statusCode === this.CODES.READY
 
                 // console.log({ m })

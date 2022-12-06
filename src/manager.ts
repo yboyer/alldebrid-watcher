@@ -57,7 +57,7 @@ class Manager {
                 )
             )
             // console.log('cache', this.cache)
-            if (!notFound) {
+            if (!notFound.length) {
                 return []
             }
             console.log('notFound', notFound)
