@@ -8,7 +8,8 @@ const useStyles: (
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        margin: '13px 77px',
+        padding: '13px 77px',
+        '-webkit-app-region': 'drag',
     },
     searchBar: {
         width: '100%',
