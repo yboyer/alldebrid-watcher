@@ -18,7 +18,7 @@
     "watch": "webpack watch",
     "lint": "eslint --ext .ts ./src",
     "start": "electron ./dist/main.js",
-    "build:release": "WEBPACK_MODE=production yarn build && electron-packager dist r2 --platform=darwin --arch=arm64 --out=releases --overwrite"
+    "build:release": "WEBPACK_MODE=production npm run build && electron-packager dist r2 --platform=darwin --arch=arm64 --out=releases --overwrite"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.0.1",
