@@ -5,7 +5,7 @@
   "dependencies": {
     "electron-json-storage": "^4.6.0",
     "electron-store": "^8.2.0",
-    "got": "^11.8.6",
+    "got": "^14.4.3",
     "lodash": "^4.17.21",
     "open": "^8.4.2",
     "parse-torrent-title": "^1.4.0",
