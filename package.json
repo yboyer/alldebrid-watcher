@@ -28,7 +28,7 @@
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.39.1",
-    "copy-webpack-plugin": "^13.0.0",
+    "copy-webpack-plugin": "^13.0.1",
     "electron": "^37.2.6",
     "electron-packager": "^17.1.2",
     "eslint": "^9.33.0",
