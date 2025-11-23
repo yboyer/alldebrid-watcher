@@ -23,7 +23,7 @@
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@types/electron-json-storage": "^4.5.4",
-    "@types/lodash": "^4.17.20",
+    "@types/lodash": "^4.17.21",
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
