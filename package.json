@@ -29,7 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
     "copy-webpack-plugin": "^13.0.1",
-    "electron": "^40.0.0",
+    "electron": "^40.2.1",
     "electron-packager": "^17.1.2",
     "eslint": "^9.39.2",
     "eslint-config-airbnb-base": "^15.0.0",
