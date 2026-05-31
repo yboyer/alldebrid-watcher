@@ -39,7 +39,7 @@
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-promise": "^7.3.0",
     "prettier": "^3.8.3",
-    "ts-loader": "^9.5.7",
+    "ts-loader": "^9.6.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
     "webpack": "^5.107.2",
